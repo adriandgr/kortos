@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <% include ./partials/_head %>
+</head>
+<body>
+<div class="container">
+  <header>
+    <% include ./partials/_header %>
+  </header>
+    <!-- Add your EJS code here -->
+  <main>
+  <h3>TinyUrl <%=shortURL%> points to <a href="<%=urls[shortURL]%>"><%=urls[shortURL]%></a></h3>
+
+  </main>
+  <footer>
+    <% include ./partials/_footer %>
+  </footer>
+</div>
+</body>
+</html>
