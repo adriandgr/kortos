@@ -37,11 +37,10 @@ app.get('/', (req, res) => {
 });
 
 app.get('/urls', (req, res) => {
-  let templateVars = {
+  res.render('urls_index', {
     urls: urlDatabase,
     random: selectImage()
-  };
-  res.render('urls_index', templateVars);
+  });
 });
 
 app.get('/about', (req, res) => {
@@ -65,7 +64,7 @@ app.get('/u/:shortURL', (req, res) => {
   if (urlDatabase.hasOwnProperty(req.params.shortURL)){
     res.redirect(urlDatabase[req.params.shortURL]);
   } else {
-    res.status(404).render('404');
+    res.status(404).render('404', { random: selectImage() });
   }
 
 });
@@ -78,12 +77,18 @@ app.post('/urls', (req, res) => {
 });
 
 app.post('/urls/:id/delete', (req, res) => {
-  res.send('hello')
+  delete urlDatabase[req.params.id];
+  res.redirect('/urls');
+});
+
+app.post('/urls/:id', (req, res) => {
+  urlDatabase[req.params.id] = req.body.longURL;
+  //res.redirect(`/urls/${req.params.id}`);
 });
 
 app.use(function (req, res, next) {
-  res.status(404).render('404');
-})
+  res.status(404).render('404', { random: selectImage() });
+});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);

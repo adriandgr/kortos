@@ -8,15 +8,22 @@
   <div class="col-md-8">
     <ul class="list-group">
       <% for(url in urls){ %>
-      <li class="list-group-item"><%= urls[url]%>
-        <span class="badge">
-          <a class="decor" href="/urls/<%=url%>"><%=url%></a>
-        </span>
-        <span class="badge">
-        <form method="POST" action="/urls/<%=url%>/delete">
-          <button>delete</button>
-        </form>
-        </span>
+      <li class="list-group-item">
+        <div class="row decor">
+        <div class="col-md-8 invert">
+          <%=url%> &xrarr; <%= urls[url]%>
+          </div>
+        <div class="col-md-2">
+          <form method="POST" action="/urls/<%=url%>/delete" style="display:inline;">
+            <button class="btn btn-danger">delete</button>
+          </form>
+        </div>
+        <div class="col-md-2">
+        <a href="/urls/<%=url%>">
+        <button class="btn btn-warning">edit</button>
+          </a>
+          </div>
+        </div>
       </li>
       <%}%>
     </ul>

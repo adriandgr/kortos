@@ -7,6 +7,14 @@
         <div class="row">
             <div class="col-md-6 col-sm-12">
                 <h3>your kort&#333;s <a href="http://localhost:8080/u/<%=shortURL%>"><%=host%><%=shortURL%></a> points to <a href="<%=urls[shortURL]%>"><%=urls[shortURL]%></a></h3>
+
+                changed your mind? no problem!
+                <form action="/urls/<%=shortURL%>" method="POST" style="margin:150px;">
+                  <label for="longURL">Enter a URL:</label>
+                  <input id="longURL" type="text" name="longURL" value="<%=urls[shortURL]%>" style="width: 300px">
+                  <input type="submit" value="update">
+                </form>
+
             </div>
         </div>
         <!-- /.row -->
