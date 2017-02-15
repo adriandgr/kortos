@@ -1,0 +1,52 @@
+/*!
+ * Start Bootstrap - The Big Picture (http://startbootstrap.com/)
+ * Copyright 2013-2016 Start Bootstrap
+ * Licensed under MIT (https://github.com/BlackrockDigital/startbootstrap/blob/gh-pages/LICENSE)
+ */
+
+body {
+	margin-top: 50px;
+	margin-bottom: 50px;
+	background: none;
+}
+.full {
+    background: url("fallback.jpg") no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+  }
+
+.decor, a:hover.decor {
+  font-family: "Lucida Console", Monaco, monospace;
+  text-decoration: none;
+  color: #fff;
+}
+
+.content-transparency {
+  background: rgb(255, 255, 255);
+  background: rgba(255, 255, 255, .8);
+  padding: 10px 40px;
+}
+
+input[type=text], select {
+    width: 100%;
+    padding: 6px 20px;
+    margin: 1px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+input[type=submit] {
+    display: inline-block;
+    background-color: #3b4e69;
+    color: white;
+    padding: 6px 20px;
+    margin: 1px 5px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+

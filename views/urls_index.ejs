@@ -1,29 +1,31 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <% include ./partials/_head %>
-</head>
+<% include ./partials/_head %>
 <body>
-<div class="container">
-  <header>
-    <% include ./partials/_header %>
-  </header>
-    <!-- Add your EJS code here -->
+<% include ./partials/_header %>
+
   <div class="row">
 
   <div class="col-md-2"></div>
   <div class="col-md-8">
     <ul class="list-group">
       <% for(url in urls){ %>
-      <li class="list-group-item"><%= urls[url]%><span class="badge"><a class="decor" href="/urls/<%=url%>"><%=url%></a></span></li>
+      <li class="list-group-item"><%= urls[url]%>
+        <span class="badge">
+          <a class="decor" href="/urls/<%=url%>"><%=url%></a>
+        </span>
+        <span class="badge">
+        <form method="POST" action="/urls/<%=url%>/delete">
+          <button>delete</button>
+        </form>
+        </span>
+      </li>
       <%}%>
     </ul>
   </div>
   <div class="col-md-2"></div>
 </div>
-  <footer>
-    <% include ./partials/_footer %>
-  </footer>
-</div>
+  <!-- <footer>
+    <% //include ./partials/_footer %>
+  </footer> -->
+
 </body>
 </html>

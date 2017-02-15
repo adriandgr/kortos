@@ -1,21 +1,18 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <% include ./partials/_head %>
-</head>
+<% include ./partials/_head %>
 <body>
-<div class="container">
-  <header>
-    <% include ./partials/_header %>
-  </header>
-    <!-- Add your EJS code here -->
-  <main>
-  <h3>TinyUrl <%=shortURL%> points to <a href="<%=urls[shortURL]%>"><%=urls[shortURL]%></a></h3>
+<% include ./partials/_header %>
 
-  </main>
-  <footer>
-    <% include ./partials/_footer %>
-  </footer>
-</div>
+      <!-- Page Content -->
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 col-sm-12">
+                <h3>your kort&#333;s <a href="http://localhost:8080/u/<%=shortURL%>"><%=host%><%=shortURL%></a> points to <a href="<%=urls[shortURL]%>"><%=urls[shortURL]%></a></h3>
+            </div>
+        </div>
+        <!-- /.row -->
+    </div>
+
+ <% include ./partials/_footer %>
+
 </body>
 </html>

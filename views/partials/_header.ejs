@@ -1,14 +1,39 @@
-<nav class="navbar navbar-default" role="navigation">
-  <div class="container-fluid">
-
-    <div class="navbar-header">
-      <a class="navbar-brand" href="#">TinyApp</a>
+  <!-- Navigation -->
+  <nav class="navbar navbar-inverse navbar-fixed-bottom" role="navigation">
+    <div class="container">
+      <!-- Brand and toggle get grouped for better mobile display -->
+      <div class="row">
+      <div class="col-md-6">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="/">kort&#333;s</a>
+      </div>
+      <!-- Collect the nav links, forms, and other content for toggling -->
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <ul class="nav navbar-nav">
+          <li>
+            <a href="/urls/new">sh&#333;rten</a>
+          </li>
+          <li>
+            <a href="/about">ab&#333;ut</a>
+          </li>
+          <li>
+            <a href="/urls">public kort&#333;s</a>
+          </li>
+        </ul>
+      </div><!-- /.navbar-collapse -->
     </div>
-
-    <ul class="nav navbar-nav">
-      <li><a href="/urls">Index</a></li>
-      <li><a href="/about">About</a></li>
-    </ul>
-
+    <div class="col-md-6" style="display: inline-block; margin: 8px 0px; float: right;">
+      <form action="/urls" method="POST">
+      <input id="longURL" type="text" name="longURL" placeholder="Enter a URL: http://" style="width: 300px;">
+      <input type="submit" value="sh&#333;rten">
+    </form>
+    </div>
   </div>
-</nav>
+    </div> <!-- /.container -->
+  </nav>
