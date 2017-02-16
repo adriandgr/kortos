@@ -1,0 +1,41 @@
+<% include ./partials/_head %>
+<body>
+<% include ./partials/_header %>
+
+    <!-- Page Content -->
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 col-sm-12 content-transparency main-box">
+                <h1>register with kort&#333;s</h1>
+                <p>Get the most out of your kort&#333; links by creating an account with us. Here are some of the benefits you get with a registered account:</p>
+                <ul>
+                    <li>
+                        A list of all your kort&#333;s
+                    </li>
+                    <li>
+                        Ability to edit or delete any of your kort&#333;s
+                    </li>
+                    <li>
+                        Detailed metrics of all your kort&#333;s
+                    </li>
+                    <li>
+                        Ability to customize the text of your kort&#333;s
+                    </li>
+                </ul>
+
+                <form action="/register" method="POST">
+                  <label for="uname">username</label>
+                  <input id="uname" type="text" name="uname" placeholder="user" style="width: 300px">
+                  <label for="email" style="display: block;">email</label>
+                  <input id="email" type="text" name="email" placeholder="you@example.com" style="width: 300px">
+                  <input type="submit" value="Submit">
+                </form>
+            </div>
+        </div>
+        <!-- /.row -->
+    </div>
+<% include ./partials/_footer %>
+
+</body>
+
+</html>
