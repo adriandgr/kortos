@@ -3,7 +3,7 @@
     <div class="container">
       <!-- Brand and toggle get grouped for better mobile display -->
       <div class="row">
-      <div class="col-md-6">
+      <div class="col-md-5">
       <div class="navbar-header">
         <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
           <span class="sr-only">Toggle navigation</span>
@@ -28,10 +28,18 @@
         </ul>
       </div><!-- /.navbar-collapse -->
     </div>
-    <div class="col-md-6" style="display: inline-block; margin: 8px 0px; float: right;">
-      <form action="/urls" method="POST">
-      <input id="longURL" type="text" name="longURL" placeholder="Enter a URL: http://" style="width: 300px;">
-      <input type="submit" value="sh&#333;rten">
+    <div class="col-md-2 user" style="display: <%=viewLogout%>;">
+    <% if(uname) {%><%=`hello, ${uname}!`%><%}%>
+    </div>
+    <div class="col-md-5" style="display: inline-block; margin: 8px 0px; display: <%=viewLogin%>;">
+      <form action="/login" method="POST" style="float: right;">
+      <input id="user" type="text" name="uname" placeholder="username" style="width: 300px;">
+      <input type="submit" value="login">
+    </form>
+    </div>
+    <div class="col-md-5" style="display: inline-block; margin: 8px 0px; display: <%=viewLogout%>;">
+      <form action="/logout" method="POST" style="float: right;">
+      <button class="btn btn-danger">logout</button>
     </form>
     </div>
   </div>
