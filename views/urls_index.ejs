@@ -2,34 +2,30 @@
 <body>
 <% include ./partials/_header %>
 
-  <div class="row">
-
-  <div class="col-md-2"></div>
-  <div class="col-md-8">
+  <div class="kortos">
+  <div><h3>hey <%=username%>, it looks like you have saved the following kort&#333;s</h3></div>
     <ul class="list-group">
-      <% for(url in urls){ %>
+      <% for(id in urlIds){ %>
+      <% if ( user === urlIds[id].ownerId ) { %>
       <li class="list-group-item content-transparency">
         <div class="row decor">
-        <div class="col-md-8 invert">
-          <%=url%> &xrarr; <%= urls[url]%>
+        <div class="col-md-9 invert">
+          <%=id%> &xrarr; <%= urlIds[id].url%>
           </div>
-        <div class="col-md-2">
-          <form method="POST" action="/urls/<%=url%>/delete" style="display:inline;">
+
+        <div class="col-md-3" style="float: right;">
+        <a href="/urls/<%=id%>" style="float: right; margin-left: 10px;">
+        <button class="btn btn-warning" style="">edit</button>
+          </a>
+          <form method="POST" action="/urls/<%=id%>/delete" style="display:inline; float: right;">
             <button class="btn btn-danger">delete</button>
           </form>
-        </div>
-        <div class="col-md-2">
-        <a href="/urls/<%=url%>">
-        <button class="btn btn-warning">edit</button>
-          </a>
           </div>
         </div>
-      </li>
+      </li><%}%>
       <%}%>
     </ul>
   </div>
-  <div class="col-md-2"></div>
-</div>
   <!-- <footer>
     <% //include ./partials/_footer %>
   </footer> -->

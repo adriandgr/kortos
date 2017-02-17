@@ -23,25 +23,26 @@
             <a href="/about">ab&#333;ut</a>
           </li>
           <li>
-            <a href="/urls">public kort&#333;s</a>
+            <% if(!user) {%><a href="/register">register</a><%}%><% if(user) {%><a href="/urls">your kort&#333;s</a><%}%>
           </li>
+          <% if(user) {%><li>
+            <a href="/<%=username.toLowerCase()%>">pr&#333;file</a>
+          </li><%}%>
         </ul>
       </div><!-- /.navbar-collapse -->
     </div>
-    <div class="col-md-2 user" style="display: <%=viewLogout%>;">
-    <% if(uname) {%><%=`hello, ${uname}!`%><%}%>
-    </div>
-    <div class="col-md-5" style="display: inline-block; margin: 8px 0px; display: <%=viewLogin%>;">
-      <form action="/login" method="POST" style="float: right;">
-      <input id="user" type="text" name="uname" placeholder="username" style="width: 300px;">
-      <input type="submit" value="login">
-    </form>
-    </div>
-    <div class="col-md-5" style="display: inline-block; margin: 8px 0px; display: <%=viewLogout%>;">
+
+    <% if(user) {%><div class="col-md-2 user">
+    <% if(user) {%><%=`hello, ${username}!`%><%}%>
+    </div><%}%>
+
+    <% if(!user) {%><a href="#" data-toggle="modal" data-target="#login-modal">Login</a>
+    <%}%>
+    <% if(user) {%><div class="col-md-5" style="display: inline-block; margin: 8px 0px;">
       <form action="/logout" method="POST" style="float: right;">
       <button class="btn btn-danger">logout</button>
     </form>
-    </div>
+    </div><%}%>
   </div>
     </div> <!-- /.container -->
   </nav>

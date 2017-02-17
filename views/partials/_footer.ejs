@@ -1,7 +1,33 @@
     <!-- /.container -->
 
+
+
+<div class="modal fade" id="login-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+  <div class="modal-dialog">
+  <div class="loginmodal-container">
+    <h1>login to kort&#333;s</h1><br>
+    <form action="/login" method="POST">
+    <input type="text" name="email" placeholder="email">
+    <input type="password" name="password" placeholder="password">
+    <input type="submit" name="login" class="login loginmodal-submit" value="Login">
+    </form>
+
+    <div class="login-help" style=" margin: 0 120px 0 120px">
+    <a href="/register">Register</a> <!-- <a href="#">Forgot Password</a> -->
+    </div>
+  </div>
+</div>
+</div>
+
     <!-- jQuery -->
     <script src="/js/jquery.js"></script>
 
     <!-- Bootstrap Core JavaScript -->
     <script src="/js/bootstrap.min.js"></script>
+
+    <!-- <div class="col-md-5" style="display: inline-block; margin: 8px 0px;">
+      <form action="/login" method="POST" style="float: right;">
+      <input id="user" type="text" name="user" placeholder="username" style="width: 300px;">
+      <input type="submit" value="login">
+    </form>
+    </div> -->
