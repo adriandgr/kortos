@@ -12,9 +12,6 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 const HOST = 'http://kor.to/';
 
-
-//todo, install bcrypt
-
 // MIDDLEWARE
 app.use(morgan('dev'));
 app.set('view engine', 'ejs');
@@ -23,7 +20,6 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieSession({
   name: 'session',
   keys: [process.env.SESSION_SECRET || 'development'],
-  // Cookie Options
   maxAge: 4 * 60 * 60 * 1000
 }));
 
@@ -32,12 +28,11 @@ app.use(function (req, res, next) {
   next();
 });
 
-let userCount = 2;
 // 'DATABASES'
 const urlDB = {
   "b2xVn2": { ownerId: "t7v1g5DO4dM82tqHvVQd5O", url: "http://www.lighthouselabs.ca", dateAdded: "2/17/17"},
   "9sm5xK": { ownerId: "t7v1g5DO4dM82tqHvVQd5O", url: "http://www.google.com", dateAdded: "2/16/17"},
-  "4h3sYs": { ownerId: "bjdG7Qmhwkn5Hb8OmCUk6u", url: "http://www.adriandiaz.ca", dateAdded: "4/9/16"},
+  "4h3sYs": { ownerId: "bjdG7Qmhwkn5Hb8OmCUk6u", url: "http://www.fewblocks.ca", dateAdded: "4/9/16"},
   "7t5d4j": { ownerId: "t7v1g5DO4dM82tqHvVQd5O", url: "https://www.nytimes.com/", dateAdded: "2/17/17"},
   "7td6sh": { ownerId: "bjdG7Qmhwkn5Hb8OmCUk6u", url: "http://leeselectronic.com/en/", dateAdded: "1/23/17"},
   "9kuxpa": { ownerId: "bjdG7Qmhwkn5Hb8OmCUk6u", url: "http://www.creativeapplications.net/", dateAdded: "2/17/17"},
@@ -46,16 +41,10 @@ const urlDB = {
 const imgDB = [ 'beach-shorts.jpg', 'dock-shorts.jpg', 'hiker-shorts.jpg', 'mountain-shorts.jpg', 'dirt-shorts.jpg', 'scooter-shorts.jpg', 'hiking-shorts.jpg' ];
 
 const users = {
-  "id": {
-    "password": "please be serious"
-  },
-  "0": {
-    id: 0
-  },
   "bjdG7Qmhwkn5Hb8OmCUk6u": {
     id: "bjdG7Qmhwkn5Hb8OmCUk6u",
-    user: process.env.USERNAME,
-    email: process.env.EMAIL,
+    user: (process.env.USERNAME || "dev"),
+    email: (process.env.EMAIL || "dev"),
     password: "$2a$12$bjdG7Qmhwkn5Hb8OmCUk6u/ia.o6JV1iGuvY0KrHzWeGS.A4mGcOW",
     memberSince: 1487217051276,
     kortoCount: 0,
@@ -73,8 +62,6 @@ const users = {
   }
 };
 
-
-
 function validateEmail(email) {
   var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   return re.test(email);
@@ -83,16 +70,15 @@ function validateEmail(email) {
 function propertyExists(prop, check) {
   let exists = false;
   for (user in users){
-    console.log(`comparing <${users[user][prop]}> === <${check}> >>> ${users[user][prop] === check}`);
     if (users[user][prop] === check) {
       return true;
     }
   }
   return false;
 }
+
 function getUserId(prop, check) {
   for (user in users){
-    console.log(`comparing <${users[user][prop]}> === <${check}> >>> ${users[user][prop] === check}`);
     if (users[user][prop] === check) {
       return users[user].id;
     }
@@ -124,6 +110,8 @@ function generateRandomString() {
   return hash;
 }
 
+
+// GET routes
 
 app.get('/', (req, res) => {
   if (req.session.userId) {
@@ -157,15 +145,14 @@ app.get('/register', (req, res) => {
 
 app.get('/urls', (req, res) => {
   if (req.session.userId) {
-    userId = req.session.userId;
-    let userEmail = users[userId].email;
-    let userKortos = {};
+    const userId = req.session.userId;
+    const userEmail = users[userId].email;
+    const userKortos = {};
     for ( let key in urlDB) {
       if (urlDB[key].ownerId === userId) {
         userKortos[key] = urlDB[key];
       }
     }
-
     res.render('urls_index', {
       urlIds: userKortos,
       random: selectImage(),
@@ -180,17 +167,20 @@ app.get('/urls', (req, res) => {
 });
 
 app.get('/about', (req, res) => {
-  let id = 0;
-  if (req.session.user) {
-    id = req.session.user;
+  if (req.session.userId) {
+    const userId = req.session.userId;
+    const userEmail = users[userId].email;
+    res.render('about', { random: selectImage(), user: userId, username: (users[userId] || {}).user, email: userEmail});
+  } else {
+    res.render('about', { random: selectImage(), user: null, username: null, email: null });
   }
-  res.render('about', { random: selectImage(), user: req.session.user, username: (users[id] || {}).user } );
+
 });
 
 app.get('/:username', (req, res) => {
   if (req.session.userId) {
-    let userId = req.session.userId;
-    let userEmail = users[userId].email;
+    const userId = req.session.userId;
+    const userEmail = users[userId].email;
     if (users[userId].user.toLowerCase() === req.params.username.toLowerCase() ) {
       res.render('users_profile', { random: selectImage(), user: userId, username: (users[userId] || {}).user, email: (userEmail || 'email missing :/') });
     } else {
@@ -200,11 +190,9 @@ app.get('/:username', (req, res) => {
 });
 
 app.get('/urls/new', (req, res) => {
-  let userId = 0;
   if (req.session.userId) {
-    userId = req.session.userId;
-    let userEmail = users[userId].email;
-    console.log(userId);
+    const userId = req.session.userId;
+    const userEmail = users[userId].email;
     res.render('urls_new', { random: selectImage(), user: userId, username: (users[userId] || {}).user, email: (userEmail || 'email missing :/') });
   } else {
     res.status(401).render('status_401');
@@ -213,10 +201,9 @@ app.get('/urls/new', (req, res) => {
 });
 
 app.get('/urls/:id', (req, res) => {
-  let userId = 0;
   if (req.session.userId) {
-    userId = req.session.userId;
-    let userEmail = users[userId].email;
+    const userId = req.session.userId;
+    const userEmail = users[userId].email;
     if (urlDB.hasOwnProperty(req.params.id)) {
       if (urlDB[req.params.id].ownerId === userId) {
         res.render('urls_show', {
@@ -252,17 +239,18 @@ app.get('/u/:shortURL', (req, res) => {
 
 });
 
-// posts
+
+// POST routes
+
 app.post('/urls', (req, res) => {
   if (req.session.userId) {
-    let urlKey = generateRandomString();
-    let uri = addUriProtocol(req.body.longURL);
+    const urlKey = generateRandomString();
+    const uri = addUriProtocol(req.body.longURL);
     urlDB[urlKey] = {
       ownerId: req.session.userId,
       url: uri,
       dateAdded: Date.now()
     };
-    console.log(urlDB);
     res.redirect(`/urls/${urlKey}`);
   } else {
     res.status(403).render('status_403', { page: req._parsedUrl.path.substring(1) });
@@ -279,16 +267,13 @@ app.post('/urls/:id/delete', (req, res) => {
 
 });
 
-// update url
 app.post('/urls/:id', (req, res) => {
   if (!urlDB.hasOwnProperty(req.params.id)){
     res.status(404).render('status_404', { page: req._parsedUrl.path.substring(1) });
   } else {
     if (req.session.userId) {
-      console.log('session >>', req.session.userId);
-      console.log('urlDB >>', urlDB[req.params.id].ownerId);
       if(req.session.userId === urlDB[req.params.id].ownerId) {
-        urlDB[req.params.id].url = req.body.longURL;
+        urlDB[req.params.id].url = addUriProtocol(req.body.longURL);
         urlDB[req.params.id].editCount = (urlDB[req.params.id].editCount || 0) + 1;
         res.redirect(`/urls/${req.params.id}`);
       } else {
@@ -302,7 +287,7 @@ app.post('/urls/:id', (req, res) => {
 
 app.post('/login', (req, res) => {
   if (propertyExists('email', req.body.email)){
-    let userId = getUserId('email', req.body.email);
+    const userId = getUserId('email', req.body.email);
     bcrypt.compare(req.body.password, users[userId].password, function(err, pass) {
       if (pass) {
         req.session.userId = users[userId].id;
@@ -352,15 +337,9 @@ app.post('/register', (req, res) => {
 
 
 app.use(function (req, res, next) {
-  let viewIfUser = 'none';
-  let viewIfAnon = 'inherit';
-  if (req.session["user"]) {
-    viewIfUser = 'inherit';
-    viewIfAnon = 'none';
-  }
   res.status(404).render('status_404', { page: req._parsedUrl.path.substring(1) });
 });
 
 app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}!`);
+  console.log(`Kortōs app is listening on port ${PORT}!`);
 });
