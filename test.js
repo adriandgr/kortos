@@ -14,9 +14,18 @@ function pass(rounds) {
   var salt = bcrypt.genSaltSync(rounds);
   let then = Date.now();
   let hash = bcrypt.hashSync('password', salt);
+  console.log(hash);
   return `${(Date.now() - then) / 1000} secs`;
 }
 
-for (let i = 10; i < 25; i++){
+for (let i = 8; i < 14; i++){
   console.log(`${i} rounds: ${pass(i)}`);
 }
+
+
+
+
+// var match2 = re.test(str2);
+
+// console.log(match);
+// console.log(match2);

@@ -3,7 +3,7 @@
     <div class="container">
       <!-- Brand and toggle get grouped for better mobile display -->
       <div class="row">
-      <div class="col-md-5">
+      <div class="col-md-8">
       <div class="navbar-header">
         <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
           <span class="sr-only">Toggle navigation</span>
@@ -16,33 +16,35 @@
       <!-- Collect the nav links, forms, and other content for toggling -->
       <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
         <ul class="nav navbar-nav">
-          <li>
+          <% if(!user) {%><li>
             <a href="/urls/new">sh&#333;rten</a>
+          </li><%}%>
+          <li>
+            <% if(!user) {%><a href="/register">j&#333;in</a><%}%><% if(user) {%><a href="/urls">your kort&#333;s</a><%}%>
+          </li>
+          <li>
+            <% if(!user) {%><a href="#" data-toggle="modal" data-target="#login-modal">l&#333;gin</a><%}%><% if(user) {%><a href="/<%=username.toLowerCase()%>">pr&#333;file</a><%}%>
           </li>
           <li>
             <a href="/about">ab&#333;ut</a>
           </li>
-          <li>
-            <% if(!user) {%><a href="/register">register</a><%}%><% if(user) {%><a href="/urls">your kort&#333;s</a><%}%>
-          </li>
           <% if(user) {%><li>
-            <a href="/<%=username.toLowerCase()%>">pr&#333;file</a>
+            <a><%=`howdy, ${username}! `%><span class="text-mutted" style="color: #424447"><%=`<${email}>`%></span></a>
           </li><%}%>
         </ul>
       </div><!-- /.navbar-collapse -->
     </div>
+<%console.log(`>>> HEY! ejs knows about ${user} <<<`)%>
 
-    <% if(user) {%><div class="col-md-2 user">
-    <% if(user) {%><%=`hello, ${username}!`%><%}%>
-    </div><%}%>
+    <% if(user) {%>
 
-    <% if(!user) {%><a href="#" data-toggle="modal" data-target="#login-modal">Login</a>
-    <%}%>
-    <% if(user) {%><div class="col-md-5" style="display: inline-block; margin: 8px 0px;">
-      <form action="/logout" method="POST" style="float: right;">
+
+<div class="col-md-4" style="float: right; margin: 8px 0px;">
+      <form action="/logout" method="POST" >
       <button class="btn btn-danger">logout</button>
     </form>
-    </div><%}%>
+    </div>
+    <%}%>
   </div>
     </div> <!-- /.container -->
   </nav>

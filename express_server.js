@@ -2,6 +2,7 @@ const express = require('express');
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const cookieSession = require('cookie-session');
+const dateFormat = require('dateformat');
 const dotenv = require('dotenv').config();
 const bcrypt = require('bcrypt');
 // SECURITY MANIFEST | 10 sR: 0.069s | 11 sR: 0.139s | 12 sR: 0.272s | 13 sR: 0.548s | 14 sR: 1.1s | 15 sR: 2.18s | 16 sR: 4.366s | 17 sR: 8.731s | 18 sR: 17.475s
@@ -34,13 +35,13 @@ app.use(function (req, res, next) {
 let userCount = 2;
 // 'DATABASES'
 const urlDB = {
-  "b2xVn2": { ownerId: "t7v1g5DO4dM82tqHvVQd5O", url: "http://www.lighthouselabs.ca" },
-  "9sm5xK": { ownerId: "t7v1g5DO4dM82tqHvVQd5O", url: "http://www.google.com" },
-  "4h3sYs": { ownerId: "bjdG7Qmhwkn5Hb8OmCUk6u", url: "http://www.adriandiaz.ca" },
-  "7t5d4j": { ownerId: "t7v1g5DO4dM82tqHvVQd5O", url: "https://www.nytimes.com/" },
-  "7td6sh": { ownerId: "bjdG7Qmhwkn5Hb8OmCUk6u", url: "http://leeselectronic.com/en/" },
-  "9kuxpa": { ownerId: "bjdG7Qmhwkn5Hb8OmCUk6u", url: "http://www.creativeapplications.net/" },
-  "7dbsd5": { ownerId: "bjdG7Qmhwkn5Hb8OmCUk6u", url: "http://fffff.at/" }
+  "b2xVn2": { ownerId: "t7v1g5DO4dM82tqHvVQd5O", url: "http://www.lighthouselabs.ca", dateAdded: "2/17/17"},
+  "9sm5xK": { ownerId: "t7v1g5DO4dM82tqHvVQd5O", url: "http://www.google.com", dateAdded: "2/16/17"},
+  "4h3sYs": { ownerId: "bjdG7Qmhwkn5Hb8OmCUk6u", url: "http://www.adriandiaz.ca", dateAdded: "4/9/16"},
+  "7t5d4j": { ownerId: "t7v1g5DO4dM82tqHvVQd5O", url: "https://www.nytimes.com/", dateAdded: "2/17/17"},
+  "7td6sh": { ownerId: "bjdG7Qmhwkn5Hb8OmCUk6u", url: "http://leeselectronic.com/en/", dateAdded: "1/23/17"},
+  "9kuxpa": { ownerId: "bjdG7Qmhwkn5Hb8OmCUk6u", url: "http://www.creativeapplications.net/", dateAdded: "2/17/17"},
+  "7dbsd5": { ownerId: "bjdG7Qmhwkn5Hb8OmCUk6u", url: "http://fffff.at/", dateAdded: "2/14/17"}
 };
 const imgDB = [ 'beach-shorts.jpg', 'dock-shorts.jpg', 'hiker-shorts.jpg', 'mountain-shorts.jpg', 'dirt-shorts.jpg', 'scooter-shorts.jpg', 'hiking-shorts.jpg' ];
 
@@ -73,6 +74,7 @@ const users = {
 };
 
 
+
 function validateEmail(email) {
   var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   return re.test(email);
@@ -98,7 +100,13 @@ function getUserId(prop, check) {
   return false;
 }
 
-
+function addUriProtocol(uri){
+  var re = new RegExp("^https?://", "i");
+  if (re.test(uri)) {
+    return uri;
+  }
+  return `http://${uri}`;
+}
 
 function selectImage() {
   let len = imgDB.length;
@@ -118,20 +126,11 @@ function generateRandomString() {
 
 
 app.get('/', (req, res) => {
-  console.log(req.session);
-  console.log(`\ncurrent session user is ${req.session.userId}\n`);
-
-  let id = 0;
-  if (req.session.user) {
-    id = req.session.user;
+  if (req.session.userId) {
+    res.redirect('/urls');
+  } else {
+    res.redirect('/login');
   }
-
-  res.render('landing', {
-    random: selectImage(),
-    user: req.session.user,
-    username: (users[id]|| {}).user
-  });
-  // let username = 0; // if (req.session.user) { //   let id = req.session.user; //   username = users[id].user; // } // res.render('landing', { //   random: selectImage(), //   user: req.session.user, //   username: username // });
 });
 
 app.get('/login', (req, res) => {
@@ -140,36 +139,42 @@ app.get('/login', (req, res) => {
   } else {
     res.render('users_login', {
       random: selectImage(),
-      user: null,
+      user: null, email: null, username: null
     });
   }
 });
 
 app.get('/register', (req, res) => {
-  console.log(`\ncurrent session cookie is ${req.session.user}\n`);
-  console.log(req.session.user)
-
-  if (req.session.user) {
-    res.redirect('/urls');
+  if (req.session.userId) {
+    res.redirect('/');
     return;
   }
   res.render('users_register', {
     random: selectImage(),
-    user: null,
+    user: null, email: null, username: null
   });
 });
 
 app.get('/urls', (req, res) => {
   if (req.session.userId) {
-    id = req.session.user;
+    userId = req.session.userId;
+    let userEmail = users[userId].email;
+    let userKortos = {};
+    for ( let key in urlDB) {
+      if (urlDB[key].ownerId === userId) {
+        userKortos[key] = urlDB[key];
+      }
+    }
+
     res.render('urls_index', {
-      urlIds: urlDB,
+      urlIds: userKortos,
       random: selectImage(),
-      user: req.session.user,
-      username: (users[id] || {}).user
+      user: req.session.userId,
+      email: userEmail,
+      username: (users[userId] || {}).user
     });
   } else {
-    res.status(401).render('users_401');
+    res.status(401).render('status_401');
   }
 
 });
@@ -184,9 +189,10 @@ app.get('/about', (req, res) => {
 
 app.get('/:username', (req, res) => {
   if (req.session.userId) {
-    let id = req.session.userId;
-    if (users[id].user.toLowerCase() === req.params.username.toLowerCase() ) {
-      res.render('users_profile', { random: selectImage(), user: req.session.user, username: users[id].user });
+    let userId = req.session.userId;
+    let userEmail = users[userId].email;
+    if (users[userId].user.toLowerCase() === req.params.username.toLowerCase() ) {
+      res.render('users_profile', { random: selectImage(), user: userId, username: (users[userId] || {}).user, email: (userEmail || 'email missing :/') });
     } else {
       res.status(404).render('status_404', { page: req.params.username });
     }
@@ -194,80 +200,119 @@ app.get('/:username', (req, res) => {
 });
 
 app.get('/urls/new', (req, res) => {
-  let id = 0;
-  if (req.session.user) {
-    id = req.session.user;
+  let userId = 0;
+  if (req.session.userId) {
+    userId = req.session.userId;
+    let userEmail = users[userId].email;
+    console.log(userId);
+    res.render('urls_new', { random: selectImage(), user: userId, username: (users[userId] || {}).user, email: (userEmail || 'email missing :/') });
+  } else {
+    res.status(401).render('status_401');
   }
-  res.render('urls_new', { random: selectImage(), user: req.session.user, username: (users[id] || {}).user });
+
 });
 
 app.get('/urls/:id', (req, res) => {
-  let id = 0;
-  if (req.session.user) {
-    id = req.session.user;
+  let userId = 0;
+  if (req.session.userId) {
+    userId = req.session.userId;
+    let userEmail = users[userId].email;
+    if (urlDB.hasOwnProperty(req.params.id)) {
+      if (urlDB[req.params.id].ownerId === userId) {
+        res.render('urls_show', {
+          shortURL: req.params.id,
+          random: selectImage(),
+          user: userId,
+          username: (users[userId] || {}).user,
+          email: (userEmail || 'email missing :/'),
+          urls: urlDB,
+          host: HOST
+        });
+      } else {
+        res.status(403).render('status_403', { page: req._parsedUrl.path.substring(1) });
+      }
+    } else {
+      res.status(404).render('status_404', { page: req._parsedUrl.path.substring(1) });
+    }
+  } else {
+    if (!urlDB.hasOwnProperty(req.params.id)) {
+      res.status(404).render('status_404', { page: req._parsedUrl.path.substring(1) });
+    } else {
+      res.status(401).render('status_401');
+    }
   }
-  res.render('urls_show', {
-    shortURL: req.params.id,
-    random: selectImage(),
-    user: req.session.user,
-    username: (users[id] || {}).user,
-    urls: urlDB,
-    host: HOST
-  });
 });
 
 app.get('/u/:shortURL', (req, res) => {
-  let id = 0;
-  if (req.session.user) {
-    id = req.session.user;
-  }
   if (urlDB.hasOwnProperty(req.params.shortURL)){
     res.redirect(urlDB[req.params.shortURL].url);
   } else {
-    res.status(404).render('404', { random: selectImage(), user: req.session.user, username: (users[id] || {}).user });
+    res.status(404).render('status_404', { page: req._parsedUrl.path.substring(1) });
   }
 
 });
 
 // posts
 app.post('/urls', (req, res) => {
-  if (req.session.user) {
+  if (req.session.userId) {
     let urlKey = generateRandomString();
+    let uri = addUriProtocol(req.body.longURL);
     urlDB[urlKey] = {
-      ownerId: req.session.user,
-      url: req.body.longURL
+      ownerId: req.session.userId,
+      url: uri,
+      dateAdded: Date.now()
     };
+    console.log(urlDB);
     res.redirect(`/urls/${urlKey}`);
   } else {
-    res.status(403).json({ error: 'You must be logged in' });
+    res.status(403).render('status_403', { page: req._parsedUrl.path.substring(1) });
   }
 });
 
 app.post('/urls/:id/delete', (req, res) => {
-  delete urlDB[req.params.id];
-  res.redirect('/urls');
+  if (req.session.userId) {
+    delete urlDB[req.params.id];
+    res.redirect('/urls');
+  } else {
+    res.status(401).render('status_401', { page: req._parsedUrl.path.substring(1) });
+  }
+
 });
 
 // update url
 app.post('/urls/:id', (req, res) => {
-  urlDB[req.params.id] = req.body.longURL;
-  res.redirect(`/urls/${req.params.id}`);
+  if (!urlDB.hasOwnProperty(req.params.id)){
+    res.status(404).render('status_404', { page: req._parsedUrl.path.substring(1) });
+  } else {
+    if (req.session.userId) {
+      console.log('session >>', req.session.userId);
+      console.log('urlDB >>', urlDB[req.params.id].ownerId);
+      if(req.session.userId === urlDB[req.params.id].ownerId) {
+        urlDB[req.params.id].url = req.body.longURL;
+        urlDB[req.params.id].editCount = (urlDB[req.params.id].editCount || 0) + 1;
+        res.redirect(`/urls/${req.params.id}`);
+      } else {
+        res.status(403).render('status_403', { page: req._parsedUrl.path.substring(1) });
+      }
+    } else {
+      res.status(401).render('status_401', { page: req._parsedUrl.path.substring(1) });
+    }
+  }
 });
 
 app.post('/login', (req, res) => {
   if (propertyExists('email', req.body.email)){
-    id = getUserId('email', req.body.email);
-    bcrypt.compare(req.body.password, users[id].password, function(err, pass) {
+    let userId = getUserId('email', req.body.email);
+    bcrypt.compare(req.body.password, users[userId].password, function(err, pass) {
       if (pass) {
-        req.session.userId = users[id].id;
-        console.log(req.session.userId);
-        res.redirect('/')
+        req.session.userId = users[userId].id;
+        res.redirect('/');
       } else {
-        res.status(400).send('wrong credentials');
+        res.status(400).render('status_400', { msg: 'Invalid credentials!', forgot: true});
       }
     });
   } else {
-    res.status(400).send('wrong credentials');
+    res.status(400).render('status_400', { msg: 'Invalid credentials!', forgot: true});
   }
 });
 
@@ -277,26 +322,15 @@ app.post('/logout', (req, res) => {
 });
 
 app.post('/register', (req, res) => {
-
-  if (!validateEmail(req.body.email)) {
-    console.log("BAD EMAIL!\n");
-    res.set('Content-Type', 'text/html');
-    res.status(400).send(new Buffer(`${process.env.PRE_BAD_EMAIL}${req.body.email}${process.env.POST_BAD_EMAIL}`));
-
+  if (!req.body.email || !req.body.password){
+    res.status(400).render('status_400', { msg: 'Email and password fields are required and may not be left blank.', forgot: false});
+  } else if (!validateEmail(req.body.email)) {
+    res.status(400).render('status_400', { msg: `${req.body.email} is not a valid email address.`, forgot: false});
   } else if (propertyExists('email', req.body.email)) {
-    console.log("EMAIL EXISTS!\n");
-    res.set('Content-Type', 'text/html');
-    res.status(400).send(new Buffer(`${process.env.PRE_EMAIL_EXISTS}${req.body.email}${process.env.POST_EMAIL_EXISTS}`));
-
-  } else if (propertyExists('user', req.body.user)) {
-    console.log("USER EXISTS!\n");
-    res.set('Content-Type', 'text/html');
-    res.status(400).send(new Buffer(`${process.env.PRE_USER_EXISTS}${req.body.user}${process.env.POST_USER_EXISTS}`));
-
-  } else {
+    res.status(400).render('status_400', { msg: `${req.body.email} is already registered!`, forgot: true});
+  }  else {
     bcrypt.genSalt(saltRounds, function(err, salt) {
       // TODO: check to see if salt already exists in userDB
-      console.log(`salting user ${req.body.user} >> ${salt}`);
       bcrypt.hash(req.body.password, salt, function(err, hash) {
         let id = salt.substring(7);
         users[id] = {
@@ -304,14 +338,12 @@ app.post('/register', (req, res) => {
           user: req.body.user,
           email: req.body.email,
           password: hash,
-          memberSince: Date.now(),
+          memberSince: dateFormat(Date.now(), "m/d/yy"),
           kortoCount: 0,
           redirectCount: 0
         };
-        console.log(users[id]);
         req.session.userId = id;
         res.redirect('/');
-          // Store hash in your password DB.
       });
     });
   }

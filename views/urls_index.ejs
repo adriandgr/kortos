@@ -1,16 +1,19 @@
 <% include ./partials/_head %>
 <body>
 <% include ./partials/_header %>
-
+  <% if (Object.keys(urlIds).length > 0) {%>
   <div class="kortos">
-  <div><h3>hey <%=username%>, it looks like you have saved the following kort&#333;s</h3></div>
+  <div class="index-heading shadow"><h4>hey <%=username%>, it looks like you have <%= Object.keys(urlIds).length %> saved kort&#333;s</h4></div>
     <ul class="list-group">
       <% for(id in urlIds){ %>
       <% if ( user === urlIds[id].ownerId ) { %>
       <li class="list-group-item content-transparency">
         <div class="row decor">
         <div class="col-md-9 invert">
-          <%=id%> &xrarr; <%= urlIds[id].url%>
+          <a href="http://localhost:8080/u/<%=id%>" style="text-decoration: none; color: #000">
+
+
+          <%=id%></a> &xrarr; <%= `${urlIds[id].url} >> saved on: ${urlIds[id].dateAdded} `%>
           </div>
 
         <div class="col-md-3" style="float: right;">
@@ -25,7 +28,19 @@
       </li><%}%>
       <%}%>
     </ul>
-  </div>
+  </div> <%}%>
+
+
+  <div class="index-shortner"> <% if (Object.keys(urlIds).length > 0) {%>
+  <p class="index-shortner shadow">Why not save another kort&#333;?</p><%} else {%>
+  <p class="index-shortner shadow">Get started by saving your first kort&#333;</p> <%}%>
+            <form action="/urls" method="POST">
+              <div class="form-group">
+                <input id="longURL" type="text" name="longURL" placeholder="http://" style="max-width: 800px; float: right">
+              </div>
+              <input type="submit" value="make kort&#333;" style="float: right; margin-top: 15px">
+            </form>
+        </div>
   <!-- <footer>
     <% //include ./partials/_footer %>
   </footer> -->

@@ -15,7 +15,28 @@ body {
     -moz-background-size: cover;
     -o-background-size: cover;
     background-size: cover;
-  }
+}
+.shadow {
+  color: #fff;
+  font-size: 20px;
+  text-shadow: 0px 2px 3px #555;
+}
+
+.home-shortner input {
+  font-size: 20px;
+}
+.index-shortner input {
+  font-size: 15px;
+}
+.index-shortner p {
+  color: #fff;
+  font-size: 18px;
+}
+.index-heading {
+  color: #fff;
+  font-size: 18px;
+}
+
 
 .decor, a:hover.decor {
   font-family: "Lucida Console", Monaco, monospace;
@@ -48,8 +69,18 @@ body {
 
 .home-shortner {
   max-width: 600px;
-  margin: ;
-  padding: 0 30px 0 30px;
+  margin: auto;
+  padding: 10% 0px 0 0px;
+}
+.index-shortner {
+  max-width: 600px;
+  margin: auto;
+  padding: 50px 40px 0 40px;
+}
+
+.index-shortner p {
+  position: relative;
+  left: -33px;
 }
 
 .content-transparency {
