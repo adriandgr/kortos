@@ -1,0 +1,27 @@
+<% include ./partials/_head %>
+<body>
+<% include ./partials/_header %>
+
+    <!-- Page Content -->
+    <div class="container" style="padding-top: 10%; padding-bottom: 10%">
+        <div class="modal-dialog" >
+  <div class="loginmodal-container">
+    <h1>login to kort&#333;s</h1><br>
+    <form action="/login" method="POST">
+    <input type="text" name="email" placeholder="email">
+    <input type="password" name="password" placeholder="password">
+    <input type="submit" name="login" class="login loginmodal-submit" value="Login">
+    </form>
+
+    <div class="login-help" style=" margin: 0 120px 0 120px">
+    <a href="/register">Register</a> <!-- <a href="#">Forgot Password</a> -->
+    </div>
+  </div>
+</div>
+        <!-- /.row -->
+    </div>
+<% include ./partials/_footer %>
+
+</body>
+
+</html>

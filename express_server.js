@@ -119,33 +119,30 @@ function generateRandomString() {
 
 app.get('/', (req, res) => {
   console.log(req.session);
-  console.log(`\ncurrent session user is ${req.session.user}\n`);
-
-  console.log('users', users);
-
+  console.log(`\ncurrent session user is ${req.session.userId}\n`);
 
   let id = 0;
   if (req.session.user) {
     id = req.session.user;
   }
-  console.log('id', id);
-console.log('users[id]', users[id]);
 
   res.render('landing', {
     random: selectImage(),
     user: req.session.user,
     username: (users[id]|| {}).user
   });
-  // let username = 0;
-  // if (req.session.user) {
-  //   let id = req.session.user;
-  //   username = users[id].user;
-  // }
-  // res.render('landing', {
-  //   random: selectImage(),
-  //   user: req.session.user,
-  //   username: username
-  // });
+  // let username = 0; // if (req.session.user) { //   let id = req.session.user; //   username = users[id].user; // } // res.render('landing', { //   random: selectImage(), //   user: req.session.user, //   username: username // });
+});
+
+app.get('/login', (req, res) => {
+  if(req.session.userId){
+    res.redirect('/');
+  } else {
+    res.render('users_login', {
+      random: selectImage(),
+      user: null,
+    });
+  }
 });
 
 app.get('/register', (req, res) => {
@@ -163,16 +160,18 @@ app.get('/register', (req, res) => {
 });
 
 app.get('/urls', (req, res) => {
-  let id = 0;
-  if (req.session.user) {
+  if (req.session.userId) {
     id = req.session.user;
+    res.render('urls_index', {
+      urlIds: urlDB,
+      random: selectImage(),
+      user: req.session.user,
+      username: (users[id] || {}).user
+    });
+  } else {
+    res.status(401).render('users_401');
   }
-  res.render('urls_index', {
-    urlIds: urlDB,
-    random: selectImage(),
-    user: req.session.user,
-    username: users[id].user
-  });
+
 });
 
 app.get('/about', (req, res) => {
@@ -180,15 +179,18 @@ app.get('/about', (req, res) => {
   if (req.session.user) {
     id = req.session.user;
   }
-  res.render('about', { random: selectImage(), user: req.session.user, username: users[id].user } );
+  res.render('about', { random: selectImage(), user: req.session.user, username: (users[id] || {}).user } );
 });
 
-app.get('/:user', (req, res) => {
-  let id = 0;
-  if (req.session.user) {
-    id = req.session.user;
+app.get('/:username', (req, res) => {
+  if (req.session.userId) {
+    let id = req.session.userId;
+    if (users[id].user.toLowerCase() === req.params.username.toLowerCase() ) {
+      res.render('users_profile', { random: selectImage(), user: req.session.user, username: users[id].user });
+    } else {
+      res.status(404).render('status_404', { page: req.params.username });
+    }
   }
-  res.render('users_profile', { random: selectImage(), user: req.session.user, username: users[id].user } );
 });
 
 app.get('/urls/new', (req, res) => {
@@ -196,7 +198,7 @@ app.get('/urls/new', (req, res) => {
   if (req.session.user) {
     id = req.session.user;
   }
-  res.render('urls_new', { random: selectImage(), user: req.session.user, username: users[id].user });
+  res.render('urls_new', { random: selectImage(), user: req.session.user, username: (users[id] || {}).user });
 });
 
 app.get('/urls/:id', (req, res) => {
@@ -208,7 +210,7 @@ app.get('/urls/:id', (req, res) => {
     shortURL: req.params.id,
     random: selectImage(),
     user: req.session.user,
-    username: users[id].user,
+    username: (users[id] || {}).user,
     urls: urlDB,
     host: HOST
   });
@@ -222,7 +224,7 @@ app.get('/u/:shortURL', (req, res) => {
   if (urlDB.hasOwnProperty(req.params.shortURL)){
     res.redirect(urlDB[req.params.shortURL].url);
   } else {
-    res.status(404).render('404', { random: selectImage(), user: req.session.user, username: users[id].user });
+    res.status(404).render('404', { random: selectImage(), user: req.session.user, username: (users[id] || {}).user });
   }
 
 });
@@ -253,40 +255,29 @@ app.post('/urls/:id', (req, res) => {
 });
 
 app.post('/login', (req, res) => {
-
-  console.log(req.body);
   if (propertyExists('email', req.body.email)){
     id = getUserId('email', req.body.email);
-    console.log('id', id);
-    console.log('users.id', users.id);
-    console.log('req.body', req.body);
-    console.log('users.id.password', users.id.password);
-    console.log('req.body.password', req.body.password);
-
-    bcrypt.compare(req.body.password, users[id].password, function(err, res) {
-      // res == true
-      if (res) {
-        //req.session.user = req.body.user;
-        console.log("should set a cookie!");
-        res.redirect('/');
+    bcrypt.compare(req.body.password, users[id].password, function(err, pass) {
+      if (pass) {
+        req.session.userId = users[id].id;
+        console.log(req.session.userId);
+        res.redirect('/')
+      } else {
+        res.status(400).send('wrong credentials');
       }
     });
-
-
   } else {
     res.status(400).send('wrong credentials');
   }
 });
 
 app.post('/logout', (req, res) => {
-  delete req.session.user;
+  delete req.session.userId;
   res.redirect('/');
 });
 
 app.post('/register', (req, res) => {
-  console.log("REGISTER!\n");
 
-  console.log("DATA IN\n", req.body);
   if (!validateEmail(req.body.email)) {
     console.log("BAD EMAIL!\n");
     res.set('Content-Type', 'text/html');
@@ -305,7 +296,7 @@ app.post('/register', (req, res) => {
   } else {
     bcrypt.genSalt(saltRounds, function(err, salt) {
       // TODO: check to see if salt already exists in userDB
-      console.log(`salting user ${req.body.user} >> ${salt}`)
+      console.log(`salting user ${req.body.user} >> ${salt}`);
       bcrypt.hash(req.body.password, salt, function(err, hash) {
         let id = salt.substring(7);
         users[id] = {
@@ -316,16 +307,14 @@ app.post('/register', (req, res) => {
           memberSince: Date.now(),
           kortoCount: 0,
           redirectCount: 0
-        }
+        };
         console.log(users[id]);
-        req.session.user = id;
+        req.session.userId = id;
         res.redirect('/');
           // Store hash in your password DB.
       });
     });
-
-
-    }
+  }
 
 });
 
@@ -337,7 +326,7 @@ app.use(function (req, res, next) {
     viewIfUser = 'inherit';
     viewIfAnon = 'none';
   }
-  res.status(404).render('404', { random: selectImage(), user: req.session["user"], viewIfUser: viewIfUser, viewIfAnon: viewIfAnon });
+  res.status(404).render('status_404', { page: req._parsedUrl.path.substring(1) });
 });
 
 app.listen(PORT, () => {
