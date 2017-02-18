@@ -3,6 +3,8 @@ const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const cookieSession = require('cookie-session');
 const dateFormat = require('dateformat');
+const md5 = require("blueimp-md5");
+const methodOverride = require('method-override')
 const dotenv = require('dotenv').config();
 const bcrypt = require('bcrypt');
 // SECURITY MANIFEST | 10 sR: 0.069s | 11 sR: 0.139s | 12 sR: 0.272s | 13 sR: 0.548s | 14 sR: 1.1s | 15 sR: 2.18s | 16 sR: 4.366s | 17 sR: 8.731s | 18 sR: 17.475s
@@ -10,13 +12,14 @@ const saltRounds = 12;
 
 const app = express();
 const PORT = process.env.PORT || 8080;
-const HOST = 'http://kor.to/';
+const HOST = 'http://localhost';
 
 // MIDDLEWARE
 app.use(morgan('dev'));
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(methodOverride('_method'));
 app.use(cookieSession({
   name: 'session',
   keys: [process.env.SESSION_SECRET || 'development'],
@@ -36,28 +39,32 @@ const urlDB = {
   "7t5d4j": { ownerId: "t7v1g5DO4dM82tqHvVQd5O", url: "https://www.nytimes.com/", dateAdded: "2/17/17"},
   "7td6sh": { ownerId: "bjdG7Qmhwkn5Hb8OmCUk6u", url: "http://leeselectronic.com/en/", dateAdded: "1/23/17"},
   "9kuxpa": { ownerId: "bjdG7Qmhwkn5Hb8OmCUk6u", url: "http://www.creativeapplications.net/", dateAdded: "2/17/17"},
-  "7dbsd5": { ownerId: "bjdG7Qmhwkn5Hb8OmCUk6u", url: "http://fffff.at/", dateAdded: "2/14/17"}
+  "7dbsd5": { ownerId: "bjdG7Qmhwkn5Hb8OmCUk6u", url: "http://fffff.at/", dateAdded: "2/14/17"},
+  "wxekf3": { ownerId: (process.env.KORTOS_ID || "dev"), url: (process.env.GRAVATAR || "dev"), dateAdded: "2/17/17"},
+  "aeledu": { ownerId: (process.env.KORTOS_ID || "dev"), url: "https://www.gravatar.com/avatar/676a33bd3be95b9cb7af4bab37d1ea44?s=250&d=identicon", dateAdded: "2/17/17"}
 };
-const imgDB = [ 'beach-shorts.jpg', 'dock-shorts.jpg', 'hiker-shorts.jpg', 'mountain-shorts.jpg', 'dirt-shorts.jpg', 'scooter-shorts.jpg', 'hiking-shorts.jpg' ];
+const imgDB = [ 'beach-shorts.jpg', 'dock-shorts.jpg', 'hiker-shorts.jpg', 'mountain-shorts.jpg', 'dirt-shorts.jpg', 'scooter-shorts.jpg', 'hiking-shorts.jpg', 'coffee-shorts.jpg', 'dramatic-shorts.jpg', 'runner-shorts.jpg' ];
 
 const users = {
   "bjdG7Qmhwkn5Hb8OmCUk6u": {
     id: "bjdG7Qmhwkn5Hb8OmCUk6u",
     user: (process.env.USERNAME || "dev"),
     email: (process.env.EMAIL || "dev"),
+    avatar: `${HOST}:${PORT}/u/wxekf3`,
     password: "$2a$12$bjdG7Qmhwkn5Hb8OmCUk6u/ia.o6JV1iGuvY0KrHzWeGS.A4mGcOW",
-    memberSince: 1487217051276,
-    kortoCount: 0,
+    memberSince: "2/13/17",
+    kortoCount: 4,
     redirectCount: 0
   },
   "t7v1g5DO4dM82tqHvVQd5O": {
     id: "t7v1g5DO4dM82tqHvVQd5O",
     user: "Lolo",
     email: "lolo@realemail.ca",
+    avatar: `${HOST}:${PORT}/u/aeledu`,
     // try: correct horse battery staple
     password: "$2a$12$t7v1g5DO4dM82tqHvVQd5OxJA27vVQAV5L0maF3M5FGf.3i0dqSoS",
-    memberSince: 1487217051395,
-    kortoCount: 0,
+    memberSince: "2/15/17",
+    kortoCount: 3,
     redirectCount: 0
   }
 };
@@ -127,7 +134,7 @@ app.get('/login', (req, res) => {
   } else {
     res.render('users_login', {
       random: selectImage(),
-      user: null, email: null, username: null
+      user: {}
     });
   }
 });
@@ -139,7 +146,7 @@ app.get('/register', (req, res) => {
   }
   res.render('users_register', {
     random: selectImage(),
-    user: null, email: null, username: null
+    user: {}
   });
 });
 
@@ -156,9 +163,7 @@ app.get('/urls', (req, res) => {
     res.render('urls_index', {
       urlIds: userKortos,
       random: selectImage(),
-      user: req.session.userId,
-      email: userEmail,
-      username: (users[userId] || {}).user
+      user: users[userId]
     });
   } else {
     res.status(401).render('status_401');
@@ -170,9 +175,9 @@ app.get('/about', (req, res) => {
   if (req.session.userId) {
     const userId = req.session.userId;
     const userEmail = users[userId].email;
-    res.render('about', { random: selectImage(), user: userId, username: (users[userId] || {}).user, email: userEmail});
+    res.render('about', { random: selectImage(), user: users[userId] });
   } else {
-    res.render('about', { random: selectImage(), user: null, username: null, email: null });
+    res.render('about', { random: selectImage(), user: {} });
   }
 
 });
@@ -182,7 +187,7 @@ app.get('/:username', (req, res) => {
     const userId = req.session.userId;
     const userEmail = users[userId].email;
     if (users[userId].user.toLowerCase() === req.params.username.toLowerCase() ) {
-      res.render('users_profile', { random: selectImage(), user: userId, username: (users[userId] || {}).user, email: (userEmail || 'email missing :/') });
+      res.render('users_profile', { random: selectImage(), user: users[userId] });
     } else {
       res.status(404).render('status_404', { page: req.params.username });
     }
@@ -193,7 +198,7 @@ app.get('/urls/new', (req, res) => {
   if (req.session.userId) {
     const userId = req.session.userId;
     const userEmail = users[userId].email;
-    res.render('urls_new', { random: selectImage(), user: userId, username: (users[userId] || {}).user, email: (userEmail || 'email missing :/') });
+    res.render('urls_new', { random: selectImage(), user: users[userId] });
   } else {
     res.status(401).render('status_401');
   }
@@ -209,9 +214,7 @@ app.get('/urls/:id', (req, res) => {
         res.render('urls_show', {
           shortURL: req.params.id,
           random: selectImage(),
-          user: userId,
-          username: (users[userId] || {}).user,
-          email: (userEmail || 'email missing :/'),
+          user: users[userId],
           urls: urlDB,
           host: HOST
         });
@@ -232,6 +235,14 @@ app.get('/urls/:id', (req, res) => {
 
 app.get('/u/:shortURL', (req, res) => {
   if (urlDB.hasOwnProperty(req.params.shortURL)){
+    if (urlDB[req.params.shortURL].ownerId === req.session.userId ) {
+      users[req.session.userId].redirectCount += 1;
+      ipHash = md5(req.connection.remoteAddress);
+      users[req.session.userId].uniqueRedirects = users[req.session.userId].uniqueRedirects || {};
+      users[req.session.userId].uniqueRedirects[ipHash] = (users[req.session.userId].uniqueRedirects[ipHash] + 1) || 0
+
+      console.log(users);
+    }
     res.redirect(urlDB[req.params.shortURL].url);
   } else {
     res.status(404).render('status_404', { page: req._parsedUrl.path.substring(1) });
@@ -249,20 +260,22 @@ app.post('/urls', (req, res) => {
     urlDB[urlKey] = {
       ownerId: req.session.userId,
       url: uri,
-      dateAdded: Date.now()
+      dateAdded: dateFormat(Date.now(), "m/d/yy"),
+      redirects: 0
     };
+    users[req.session.userId].kortoCount += 1;
     res.redirect(`/urls/${urlKey}`);
   } else {
     res.status(403).render('status_403', { page: req._parsedUrl.path.substring(1) });
   }
 });
 
-app.post('/urls/:id/delete', (req, res) => {
+app.delete('/urls/:id', (req, res) => {
   if (req.session.userId) {
     delete urlDB[req.params.id];
     res.redirect('/urls');
   } else {
-    res.status(401).render('status_401', { page: req._parsedUrl.path.substring(1) });
+    res.status(401).render('status_401');
   }
 
 });
@@ -280,7 +293,7 @@ app.post('/urls/:id', (req, res) => {
         res.status(403).render('status_403', { page: req._parsedUrl.path.substring(1) });
       }
     } else {
-      res.status(401).render('status_401', { page: req._parsedUrl.path.substring(1) });
+      res.status(401).render('status_401');
     }
   }
 });
@@ -331,6 +344,78 @@ app.post('/register', (req, res) => {
         res.redirect('/');
       });
     });
+  }
+
+});
+
+app.post('/update/:id', (req, res) => {
+  // check: no user logged in
+  console.log("got a POST req!!");
+  if(!req.session.userId) {
+    res.status(401).render('status_401');
+  } else {
+    const userId = req.session.userId;
+    // check: user logged in does not match target resource owner
+    if (userId !== req.params.id) {
+      res.status(403).render('status_403', { page: req._parsedUrl.path.substring(1) });
+    } else {
+      // check: new email does not collide with existing users
+      if (propertyExists('email', req.body.email) && (req.body.email !== users[userId].email)) {
+        res.status(400).render('status_400', { msg: `${req.body.email} is already registered!`, forgot: false});
+      } else {
+        // check: verify password provided
+        bcrypt.compare(req.body.password, users[userId].password, function(err, pass) {
+          // SUCCESS! Go ahead and update profile
+          if (pass) {
+            // check: url string has changed
+            if (req.body.avatar !== users[userId].avatar) {
+              // check: url string is 30 characters long, if true, assume it is a korto link.
+              if(req.body.avatar.length === 30) {
+                users[userId].avatar = reg.body.avatar;
+              } else {
+                const longUri = addUriProtocol(req.body.avatar);
+                const kortoID = generateRandomString();
+                urlDB[kortoID] = {
+                  ownerId: (process.env.KORTOS_ID || "dev"),
+                  url: `${longUri}`,
+                  dateAdded: dateFormat(Date.now(), "m/d/yy"),
+                  type: 'user_avatar'
+                };
+                // UPDATE: new profile picture url as a short link
+                users[userId].avatar = `${HOST}:${PORT}/u/${kortoID}`;
+              }
+            }
+          // ^end of url condition
+
+            // check: new password is different
+            bcrypt.compare(req.body.newPassword, users[userId].password, function(err, pass) {
+              if (pass) {
+                // check: password is the same, do nothing
+              } else {
+                bcrypt.hash(req.body.newPassword, saltRounds, function(err, hash) {
+                  // UPDATE: new hash in user DB.
+                  users[userId].password = hash;
+                });
+              }
+            });
+          // ^end of password condition
+
+            // UPDATE OPTIMISTICALLY: user (name), email, and about
+
+            users[userId].user = req.body.name;
+            users[userId].email = req.body.email;
+            users[userId].about = req.body.about;
+            console.log(users[userId]);
+            // Done updating user
+            res.redirect(`/${users[userId].user}`);
+          } else {
+            // AUTH FAILURE: Reject request
+            res.status(400).render('status_400', { msg: 'Invalid credentials!', forgot: true});
+          }
+        });
+      }
+
+    }
   }
 
 });

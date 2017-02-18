@@ -3,7 +3,7 @@
     <div class="container">
       <!-- Brand and toggle get grouped for better mobile display -->
       <div class="row">
-      <div class="col-md-8">
+      <div class="col-md-11">
       <div class="navbar-header">
         <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
           <span class="sr-only">Toggle navigation</span>
@@ -11,37 +11,39 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="/">kort&#333;s</a>
+        <a class="navbar-brand" href="/<% if(user.id) {%>urls<%}%>"><% if(user.id) {%>your <%}%>kort&#333;s</a>
       </div>
       <!-- Collect the nav links, forms, and other content for toggling -->
       <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
         <ul class="nav navbar-nav">
-          <% if(!user) {%><li>
-            <a href="/urls/new">sh&#333;rten</a>
+          <% if(user.id) {%><li>
+            <a href="/urls/new">new kort&#333;</a>
+          </li><%}%>
+          <% if(!user.id) {%><li>
+            <a href="/register">j&#333;in</a>
           </li><%}%>
           <li>
-            <% if(!user) {%><a href="/register">j&#333;in</a><%}%><% if(user) {%><a href="/urls">your kort&#333;s</a><%}%>
+            <% if(!user.id) {%><a href="/login">l&#333;gin</a><%}%><% if(user.id) {%><a href="/<%=user.user.toLowerCase()%>">pr&#333;file</a><%}%>
           </li>
-          <li>
-            <% if(!user) {%><a href="#" data-toggle="modal" data-target="#login-modal">l&#333;gin</a><%}%><% if(user) {%><a href="/<%=username.toLowerCase()%>">pr&#333;file</a><%}%>
-          </li>
-          <li>
+          <% if(!user.id) {%><li>
             <a href="/about">ab&#333;ut</a>
-          </li>
-          <% if(user) {%><li>
-            <a><%=`howdy, ${username}! `%><span class="text-mutted" style="color: #424447"><%=`<${email}>`%></span></a>
+          </li><%}%>
+          <% if(user.id) {%><li>
+            <a><%=`howdy, ${user.user}! `%><span class="text-mutted" style="color: #424447"><%=`<${user.email}>`%></span></a>
           </li><%}%>
         </ul>
       </div><!-- /.navbar-collapse -->
     </div>
-<%console.log(`>>> HEY! ejs knows about ${user} <<<`)%>
+<%console.log(`>>> HEY! ejs knows about ${user.user} <<<`)%>
 
-    <% if(user) {%>
+    <% if(user.id) {%>
 
 
-<div class="col-md-4" style="float: right; margin: 8px 0px;">
-      <form action="/logout" method="POST" >
-      <button class="btn btn-danger">logout</button>
+<div class="col-md-1" style="float: right; margin: 8px 0px;">
+      <form action="/logout" method="POST" ><div class="myTooltip">
+  <span class="mytooltiptext">end session</span>
+
+      <button id="logout" class="btn btn-danger"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span></button></div>
     </form>
     </div>
     <%}%>

@@ -19,11 +19,73 @@
 </div>
 </div>
 
+<div class="modal fade" id="profile-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+  <div class="modal-dialog">
+  <div class="loginmodal-container update-profile">
+    <h1>update your kort&#333;s profile</h1><br>
+    <form action="/update/<%=user.id%>" method="POST">
+
+      <div class="form-group row">
+        <label class="col-sm-3 col-form-label" for="name">username</label>
+        <div class="col-sm-9">
+        <input type="text" class="form-control update-form-field" name="name" placeholder="what should we call you?" value="<%= user.user%>">
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <label class="col-sm-3 col-form-label" for="avatar">email</label>
+        <div class="col-sm-9">
+          <input type="text" class="form-control update-form-field" name="email" placeholder="email" value="<%= user.email%>">
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <label class="col-sm-3 col-form-label" for="about">about</label>
+        <div class="col-sm-9">
+          <input type="text" class="form-control update-form-field" name="about" placeholder="something sweet and kort&#333; about yourself" value="<%= user.description%>">
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <label class="col-sm-3 col-form-label" for="avatar">profile picture</label>
+        <div class="col-sm-9">
+        <input type="text" class="form-control update-form-field" name="avatar" placeholder="URL link to profile picture" value="<%= user.avatar%>">
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <label class="col-sm-3 col-form-label" for="password">password</label>
+        <div class="col-sm-9">
+        <input type="password" class="form-control update-form-field" name="password" placeholder="current password">
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <label class="col-sm-3 col-form-label" for="newPassword">new password</label>
+        <div class="col-sm-9">
+          <input type="password"  class="form-control update-form-field" name="newPassword" placeholder="new password">
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary">update profile</button>
+
+    </form>
+
+    <div class="login-help" style=" margin: 0 120px 0 120px">
+
+    </div>
+  </div>
+</div>
+</div>
+
     <!-- jQuery -->
     <script src="/js/jquery.js"></script>
 
     <!-- Bootstrap Core JavaScript -->
     <script src="/js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+      $('.info dd').each(function() {  $(this).css({width: $(this).text()+'%'});});
+    </script>
 
     <!-- <div class="col-md-5" style="display: inline-block; margin: 8px 0px;">
       <form action="/login" method="POST" style="float: right;">

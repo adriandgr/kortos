@@ -9,13 +9,14 @@
     <% include ./partials/_header %>
   </header>
     <!-- Add your EJS code here -->
-  <div class="row">
-    <form action="/urls" method="POST" style="margin:150px;">
-      <label for="longURL">Enter a URL:</label>
-      <input id="longURL" type="text" name="longURL" placeholder="http://" style="width: 300px">
-      <input type="submit" value="Submit">
-    </form>
-  </div>
+  <div class="home-shortner" style="padding-top: 50px;">
+            <form action="/urls" method="POST">
+              <div class="form-group">
+                <input id="longURL" type="text" name="longURL" placeholder="http://" style="max-width: 800px; height: 50px; float: right">
+              </div>
+              <input type="submit" value="make kort&#333;" style="float: right; margin-top: 15px;">
+            </form>
+        </div>
 
   <footer>
     <% include ./partials/_footer %>

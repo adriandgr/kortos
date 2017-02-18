@@ -4,21 +4,44 @@
 
     <!-- Page Content -->
     <div class="container">
-        <div class="row">
-            <div class="col-md-6 col-sm-12">
-                <h1>hi <%=username%></h1>
-                <p>turn your long links into kort&#333;s</p>
-            </div>
+
+      <section class="card">
+        <figure class="panel meta">
+          <picture>
+            <img class="avatar" src="<%=user.avatar%>" width="128" height="128"/>
+            <img class="company-logo" src="/img/lighthouse-labs.png" alt="LHL" width="60" height="60"/>
+          </picture>
+          <figcaption>
+            <h1 class="name"><%= user.user%></h1>
+            <h3 class="title"><%= user.email %></h3>
+            <p class="about-me"><% if (user.about) {%><%= user.about%><%} else {%>npm i -g hello-cookies<%}%></p>
+          </figcaption>
+        </figure>
+
+        <div class="panel info">
+          <dl class="skillz">
+            <dt>total number of kort&#333;s made</dt>
+            <dd><%= user.kortoCount%></dd>
+            <dt>global number of redirects</dt>
+            <dd><%= user.redirectCount*3%></dd>
+            <dt>unique redirects</dt>
+            <dd><% if (user.uniqueRedirects) { %><%=Object.keys(user.uniqueRedirects).length%><%} else {%>0<%}%></dd>
+          </dl>
+            <p><a href="#" data-toggle="modal" data-target="#profile-modal">edit pr&#333;file</a></p>
+
+
+          <ul class="social">
+            <li><a class="icon-social-twitter" href="https://twitter.com/bigglesrocks">Twitter</a></li>
+            <li><a class="icon-social-github" href="https://github.com/jlegosama">Github</a></li>
+            <li><a class="icon-social-stack-overflow" href="http://stackoverflow.com/users/664904/jlego">StackOverflow</a></li>
+            <li><a class="icon-social-dribbble" href="https://dribbble.com/biggles">Dribbble</a></li>
+            <li><a class="icon-social-medium" href="#">Medium</a></li>
+          </ul>
+
         </div>
-        <div class="home-shortner">
-            <form action="/urls" method="POST">
-              <div class="form-group">
-                <label for="longURL">Enter a URL:</label>
-                <input id="longURL" type="text" name="longURL" placeholder="http://" style="max-width: 500px">
-              </div>
-              <input type="submit" value="Submit">
-            </form>
-        </div>
+
+      </section>
+
         <!-- /.row -->
     </div>
 <% include ./partials/_footer %>

@@ -4,20 +4,17 @@
 
       <!-- Page Content -->
     <div class="container">
-        <div class="row">
-            <div class="col-md-6 col-sm-12">
+
                 <h3>your kort&#333;s <a href="http://localhost:8080/u/<%=shortURL%>"><%=//host%><%=shortURL%></a> points to <a href="<%=urls[shortURL].url%>"><%=urls[shortURL].url%></a></h3>
 
-                changed your mind? no problem!
-                <form action="/urls/<%=shortURL%>" method="POST" style="margin:150px;">
+                <p style="font-size: 2rem">changed your mind? no problem!</p>
+                <form action="/urls/<%=shortURL%>" method="POST" style="padding-top: 30px; max-width: 400px"">
                   <label for="longURL">Edit your link:</label>
-                  <input id="longURL" type="text" name="longURL" value="<%=urls[shortURL].url%>" style="width: 300px">
+                  <input id="longURL" type="text" name="longURL" value="<%=urls[shortURL].url%>" >
                   <input type="submit" value="update">
                 </form>
 
-            </div>
-        </div>
-        <!-- /.row -->
+
     </div>
 
  <% include ./partials/_footer %>
