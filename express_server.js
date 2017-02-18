@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const cookieSession = require('cookie-session');
 const dateFormat = require('dateformat');
 const md5 = require("blueimp-md5");
-const methodOverride = require('method-override')
+const methodOverride = require('method-override');
 const dotenv = require('dotenv').config();
 const bcrypt = require('bcrypt');
 // SECURITY MANIFEST | 10 sR: 0.069s | 11 sR: 0.139s | 12 sR: 0.272s | 13 sR: 0.548s | 14 sR: 1.1s | 15 sR: 2.18s | 16 sR: 4.366s | 17 sR: 8.731s | 18 sR: 17.475s
@@ -168,7 +168,6 @@ app.get('/urls', (req, res) => {
   } else {
     res.status(401).render('status_401');
   }
-
 });
 
 app.get('/about', (req, res) => {
@@ -179,7 +178,6 @@ app.get('/about', (req, res) => {
   } else {
     res.render('about', { random: selectImage(), user: {} });
   }
-
 });
 
 app.get('/:username', (req, res) => {
@@ -202,7 +200,6 @@ app.get('/urls/new', (req, res) => {
   } else {
     res.status(401).render('status_401');
   }
-
 });
 
 app.get('/urls/:id', (req, res) => {
@@ -239,17 +236,24 @@ app.get('/u/:shortURL', (req, res) => {
       users[req.session.userId].redirectCount += 1;
       ipHash = md5(req.connection.remoteAddress);
       users[req.session.userId].uniqueRedirects = users[req.session.userId].uniqueRedirects || {};
-      users[req.session.userId].uniqueRedirects[ipHash] = (users[req.session.userId].uniqueRedirects[ipHash] + 1) || 0
-
-      console.log(users);
+      users[req.session.userId].uniqueRedirects[ipHash] = (users[req.session.userId].uniqueRedirects[ipHash] + 1) || 0;
     }
     res.redirect(urlDB[req.params.shortURL].url);
   } else {
     res.status(404).render('status_404', { page: req._parsedUrl.path.substring(1) });
   }
-
 });
 
+// DELETE routes
+
+app.delete('/urls/:id', (req, res) => {
+  if (req.session.userId) {
+    delete urlDB[req.params.id];
+    res.redirect('/urls');
+  } else {
+    res.status(401).render('status_401');
+  }
+});
 
 // POST routes
 
@@ -268,16 +272,6 @@ app.post('/urls', (req, res) => {
   } else {
     res.status(403).render('status_403', { page: req._parsedUrl.path.substring(1) });
   }
-});
-
-app.delete('/urls/:id', (req, res) => {
-  if (req.session.userId) {
-    delete urlDB[req.params.id];
-    res.redirect('/urls');
-  } else {
-    res.status(401).render('status_401');
-  }
-
 });
 
 app.post('/urls/:id', (req, res) => {
@@ -345,7 +339,6 @@ app.post('/register', (req, res) => {
       });
     });
   }
-
 });
 
 app.post('/update/:id', (req, res) => {
@@ -400,7 +393,7 @@ app.post('/update/:id', (req, res) => {
             });
           // ^end of password condition
 
-            // UPDATE OPTIMISTICALLY: user (name), email, and about
+            // UPDATE OPTIMISTICALLY: user (name), email (safe), and about
 
             users[userId].user = req.body.name;
             users[userId].email = req.body.email;
@@ -414,12 +407,9 @@ app.post('/update/:id', (req, res) => {
           }
         });
       }
-
     }
   }
-
 });
-
 
 app.use(function (req, res, next) {
   res.status(404).render('status_404', { page: req._parsedUrl.path.substring(1) });
