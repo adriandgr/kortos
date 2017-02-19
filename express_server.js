@@ -166,7 +166,10 @@ app.get('/urls', (req, res) => {
       user: users[userId]
     });
   } else {
-    res.status(401).render('status_401');
+    res.status(401).render('statuses', { status: {
+      code: '401 Unauthorized',
+      reason: 'you are not logged in.',
+      forgot: false }});
   }
 });
 
@@ -187,7 +190,10 @@ app.get('/:username', (req, res) => {
     if (users[userId].user.toLowerCase() === req.params.username.toLowerCase() ) {
       res.render('users_profile', { random: selectImage(), user: users[userId] });
     } else {
-      res.status(404).render('status_404', { page: req.params.username });
+      res.status(404).render('statuses', { status: {
+        code: '404 Not Found',
+        reason: `${HOST}:${PORT}/${req._parsedUrl.path.substring(1)}`,
+        forgot: false }});
     }
   }
 });
@@ -198,7 +204,10 @@ app.get('/urls/new', (req, res) => {
     const userEmail = users[userId].email;
     res.render('urls_new', { random: selectImage(), user: users[userId] });
   } else {
-    res.status(401).render('status_401');
+    res.status(401).render('statuses', { status: {
+      code: '401 Unauthorized',
+      reason: 'you are not logged in.',
+      forgot: false }});
   }
 });
 
@@ -216,16 +225,28 @@ app.get('/urls/:id', (req, res) => {
           host: HOST
         });
       } else {
-        res.status(403).render('status_403', { page: req._parsedUrl.path.substring(1) });
+        res.status(403).render('statuses', { status: {
+          code: '403 Forbidden',
+          reason: `${HOST}${req._parsedUrl.path.substring(1)}`,
+          forgot: false }});
       }
     } else {
-      res.status(404).render('status_404', { page: req._parsedUrl.path.substring(1) });
+      res.status(404).render('statuses', { status: {
+        code: '404 Not Found',
+        reason: `${HOST}:${PORT}/${req._parsedUrl.path.substring(1)}`,
+        forgot: false }});
     }
   } else {
     if (!urlDB.hasOwnProperty(req.params.id)) {
-      res.status(404).render('status_404', { page: req._parsedUrl.path.substring(1) });
+      res.status(404).render('statuses', { status: {
+        code: '404 Not Found',
+        reason: `${HOST}:${PORT}/${req._parsedUrl.path.substring(1)}`,
+        forgot: false }});
     } else {
-      res.status(401).render('status_401');
+      res.status(401).render('statuses', { status: {
+        code: '401 Unauthorized',
+        reason: 'you are not logged in.',
+        forgot: false }});
     }
   }
 });
@@ -240,7 +261,10 @@ app.get('/u/:shortURL', (req, res) => {
     }
     res.redirect(urlDB[req.params.shortURL].url);
   } else {
-    res.status(404).render('status_404', { page: req._parsedUrl.path.substring(1) });
+    res.status(404).render('statuses', { status: {
+      code: '404 Not Found',
+      reason: `${HOST}:${PORT}/${req._parsedUrl.path.substring(1)}`,
+      forgot: false }});
   }
 });
 
@@ -251,7 +275,10 @@ app.delete('/urls/:id', (req, res) => {
     delete urlDB[req.params.id];
     res.redirect('/urls');
   } else {
-    res.status(401).render('status_401');
+    res.status(401).render('statuses', { status: {
+      code: '401 Unauthorized',
+      reason: 'you are not logged in.',
+      forgot: false }});
   }
 });
 
@@ -270,13 +297,19 @@ app.post('/urls', (req, res) => {
     users[req.session.userId].kortoCount += 1;
     res.redirect(`/urls/${urlKey}`);
   } else {
-    res.status(403).render('status_403', { page: req._parsedUrl.path.substring(1) });
+    res.status(403).render('statuses', { status: {
+      code: '403 Forbidden',
+      reason: `${HOST}${req._parsedUrl.path.substring(1)}`,
+      forgot: false }});
   }
 });
 
 app.post('/urls/:id', (req, res) => {
   if (!urlDB.hasOwnProperty(req.params.id)){
-    res.status(404).render('status_404', { page: req._parsedUrl.path.substring(1) });
+    res.status(404).render('statuses', { status: {
+      code: '404 Not Found',
+      reason: `${HOST}:${PORT}/${req._parsedUrl.path.substring(1)}`,
+      forgot: false }});
   } else {
     if (req.session.userId) {
       if(req.session.userId === urlDB[req.params.id].ownerId) {
@@ -284,10 +317,16 @@ app.post('/urls/:id', (req, res) => {
         urlDB[req.params.id].editCount = (urlDB[req.params.id].editCount || 0) + 1;
         res.redirect(`/urls/${req.params.id}`);
       } else {
-        res.status(403).render('status_403', { page: req._parsedUrl.path.substring(1) });
+        res.status(403).render('statuses', { status: {
+          code: '403 Forbidden',
+          reason: `${HOST}${req._parsedUrl.path.substring(1)}`,
+          forgot: false }});
       }
     } else {
-      res.status(401).render('status_401');
+      res.status(401).render('statuses', { status: {
+        code: '401 Unauthorized',
+        reason: 'you are not logged in.',
+        forgot: false }});
     }
   }
 });
@@ -300,11 +339,17 @@ app.post('/login', (req, res) => {
         req.session.userId = users[userId].id;
         res.redirect('/');
       } else {
-        res.status(400).render('status_400', { msg: 'Invalid credentials!', forgot: true});
+        res.status(400).render('statuses', { status: {
+          code: '400 Bad Request',
+          reason: `authentication failure`,
+          forgot: true }});
       }
     });
   } else {
-    res.status(400).render('status_400', { msg: 'Invalid credentials!', forgot: true});
+    res.status(400).render('statuses', { status: {
+      code: '400 Bad Request',
+      reason: `authentication failure`,
+      forgot: true }});
   }
 });
 
@@ -315,20 +360,39 @@ app.post('/logout', (req, res) => {
 
 app.post('/register', (req, res) => {
   if (!req.body.email || !req.body.password){
-    res.status(400).render('status_400', { msg: 'Email and password fields are required and may not be left blank.', forgot: false});
+    res.status(400).render('statuses', { status: {
+      code: '400 Bad Request',
+      reason: `Email and password fields are required and may not be left blank.`,
+      forgot: false }});
   } else if (!validateEmail(req.body.email)) {
-    res.status(400).render('status_400', { msg: `${req.body.email} is not a valid email address.`, forgot: false});
+    res.status(400).render('statuses', { status: {
+      code: '400 Bad Request',
+      reason: `${req.body.email} is not a valid email address.`,
+      forgot: false }});
   } else if (propertyExists('email', req.body.email)) {
-    res.status(400).render('status_400', { msg: `${req.body.email} is already registered!`, forgot: true});
+    res.status(400).render('statuses', { status: {
+      code: '400 Bad Request',
+      reason: `${req.body.email} is already registered!`,
+      forgot: true }});
   }  else {
     bcrypt.genSalt(saltRounds, function(err, salt) {
       // TODO: check to see if salt already exists in userDB
       bcrypt.hash(req.body.password, salt, function(err, hash) {
-        let id = salt.substring(7);
+        const id = salt.substring(7);
+        const gravatarId = md5(req.body.email);
+        const gravatarUri = `https://www.gravatar.com/avatar/${gravatarId}?s=250&d=identicon`;
+        const kortoID = generateRandomString();
+        urlDB[kortoID] = {
+          ownerId: (process.env.KORTOS_ID || "dev"),
+          url: gravatarUri,
+          dateAdded: dateFormat(Date.now(), "m/d/yy"),
+          type: 'user_avatar'
+        };
         users[id] = {
           id: id,
           user: req.body.user,
           email: req.body.email,
+          avatar: `${HOST}:${PORT}/u/${kortoID}`,
           password: hash,
           memberSince: dateFormat(Date.now(), "m/d/yy"),
           kortoCount: 0,
@@ -345,16 +409,25 @@ app.post('/update/:id', (req, res) => {
   // check: no user logged in
   console.log("got a POST req!!");
   if(!req.session.userId) {
-    res.status(401).render('status_401');
+    res.status(401).render('statuses', { status: {
+      code: '401 Unauthorized',
+      reason: 'you are not logged in.',
+      forgot: false }});
   } else {
     const userId = req.session.userId;
     // check: user logged in does not match target resource owner
     if (userId !== req.params.id) {
-      res.status(403).render('status_403', { page: req._parsedUrl.path.substring(1) });
+      res.status(403).render('statuses', { status: {
+        code: '403 Forbidden',
+        reason: `${HOST}${req._parsedUrl.path.substring(1)}`,
+        forgot: false }});
     } else {
       // check: new email does not collide with existing users
       if (propertyExists('email', req.body.email) && (req.body.email !== users[userId].email)) {
-        res.status(400).render('status_400', { msg: `${req.body.email} is already registered!`, forgot: false});
+        res.status(400).render('statuses', { status: {
+          code: '400 Bad Request',
+          reason: `${req.body.email} is already registered!`,
+          forgot: false }});
       } else {
         // check: verify password provided
         bcrypt.compare(req.body.password, users[userId].password, function(err, pass) {
@@ -368,6 +441,7 @@ app.post('/update/:id', (req, res) => {
               } else {
                 const longUri = addUriProtocol(req.body.avatar);
                 const kortoID = generateRandomString();
+
                 urlDB[kortoID] = {
                   ownerId: (process.env.KORTOS_ID || "dev"),
                   url: `${longUri}`,
@@ -403,7 +477,10 @@ app.post('/update/:id', (req, res) => {
             res.redirect(`/${users[userId].user}`);
           } else {
             // AUTH FAILURE: Reject request
-            res.status(400).render('status_400', { msg: 'Invalid credentials!', forgot: true});
+            res.status(400).render('statuses', { status: {
+              code: '400 Bad Request',
+              reason: `authentication failure`,
+              forgot: true }});
           }
         });
       }
@@ -412,7 +489,10 @@ app.post('/update/:id', (req, res) => {
 });
 
 app.use(function (req, res, next) {
-  res.status(404).render('status_404', { page: req._parsedUrl.path.substring(1) });
+  res.status(404).render('statuses', { status: {
+    code: '404 Not Found',
+    reason: `${HOST}:${PORT}/${req._parsedUrl.path.substring(1)}`,
+    forgot: false }});
 });
 
 app.listen(PORT, () => {
