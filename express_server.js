@@ -23,7 +23,7 @@ app.use(methodOverride('_method'));
 app.use(cookieSession({
   name: 'session',
   keys: [process.env.SESSION_SECRET || 'development'],
-  maxAge: 4 * 60 * 60 * 1000
+  maxAge: 90 * 24 * 60 * 60 * 1000
 }));
 
 app.use(function (req, res, next) {
@@ -253,11 +253,14 @@ app.get('/urls/:id', (req, res) => {
 
 app.get('/u/:shortURL', (req, res) => {
   if (urlDB.hasOwnProperty(req.params.shortURL)){
-    if (urlDB[req.params.shortURL].ownerId === req.session.userId ) {
-      users[req.session.userId].redirectCount += 1;
-      ipHash = md5(req.connection.remoteAddress);
-      users[req.session.userId].uniqueRedirects = users[req.session.userId].uniqueRedirects || {};
-      users[req.session.userId].uniqueRedirects[ipHash] = (users[req.session.userId].uniqueRedirects[ipHash] + 1) || 0;
+    if(req.session.visitorId) {
+      const ownerId = urlDB[req.params.shortURL].ownerId;
+      urlDB[req.params.shortURL].redirects[req.session.visitorId] += 1;
+      users[ownerId].redirectCount += 1;
+    } else {
+      req.session.visitorId = generateRandomString();
+      urlDB[req.params.shortURL].redirects[req.session.visitorId] = urlDB.redirects[req.session.visitorId] || 1;
+      users[ownerId].redirectCount += 1;
     }
     res.redirect(urlDB[req.params.shortURL].url);
   } else {
