@@ -255,10 +255,18 @@ app.get('/u/:shortURL', (req, res) => {
   if (urlDB.hasOwnProperty(req.params.shortURL)){
     if(req.session.visitorId) {
       const ownerId = urlDB[req.params.shortURL].ownerId;
+      const visitorId = req.session.visitorId;
+      urlDB[req.params.shortURL].redirects = urlDB[req.params.shortURL].redirects || {};
+      urlDB[req.params.shortURL].redirects[visitorId] = urlDB[req.params.shortURL].redirects[visitorId] || 0;
       urlDB[req.params.shortURL].redirects[req.session.visitorId] += 1;
-      users[ownerId].redirectCount += 1;
+      if (ownerId !== process.env.KORTOS_ID) {
+        users[ownerId].redirectCount += 1;
+      }
     } else {
+      console.log('visitor is new');
       req.session.visitorId = generateRandomString();
+      urlDB[req.params.shortURL].redirects = urlDB[req.params.shortURL].redirects || {};
+      console.log('here');
       urlDB[req.params.shortURL].redirects[req.session.visitorId] = urlDB.redirects[req.session.visitorId] || 1;
       users[ownerId].redirectCount += 1;
     }
